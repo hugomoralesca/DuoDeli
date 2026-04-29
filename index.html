@@ -218,12 +218,11 @@
         </div>
     </div>
 
-   <script>
+ <script>
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm2_IgGg-pUfMrQyOADkutPOaBriS_vYk9JcsDF2zu3f9pa09Y6aMGeLnfaSouNk7ch2W6wdldAivm/pub?output=csv';
 
     async function loadMenu() {
         try {
-            // Añadimos un número aleatorio al final para evitar que el navegador guarde una copia vieja (caché)
             const response = await fetch(CSV_URL + '&cache=no' + Math.random());
             const data = await response.text();
             
@@ -234,21 +233,20 @@
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
 
-                // Separador básico por comas
                 const cols = lines[i].split(',');
                 
                 if (cols.length >= 3) {
-                    // Limpiamos comillas y espacios de cada columna
                     const name = cols[0].replace(/"/g, "").trim();
                     const desc = cols[1].replace(/"/g, "").trim();
                     const price = cols[2].replace(/"/g, "").trim();
                     const category = cols[3] ? cols[3].replace(/"/g, "").trim() : "";
                     const imgUrl = cols[4] ? cols[4].replace(/"/g, "").trim() : "";
 
+                    // AQUÍ ESTÁ LO QUE BUSCABAS: La lógica de la imagen
                     let imgTag = '';
-                    // Verificamos que el link sea un link real
                     if (imgUrl.toLowerCase().includes('http')) {
-                        imgTag = `<img src="${imgUrl}" style="width:100%; height:180px; object-fit:cover; border-radius:10px; margin-bottom:15px; border: 1px solid #333;">`;
+                        // Le añadí 'object-fit: cover' para que la foto no se estire
+                        imgTag = `<img src="${imgUrl}" style="width:100%; height:200px; object-fit:cover; object-position:center; border-radius:10px; margin-bottom:15px; border: 1px solid #333;">`;
                     }
 
                     const card = `
