@@ -222,7 +222,7 @@
         // PEGA AQUÍ TU LINK DE PUBLICAR EN LA WEB (OPCIÓN .CSV)
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm2_IgGg-pUfMrQyOADkutPOaBriS_vYk9JcsDF2zu3f9pa09Y6aMGeLnfaSouNk7ch2W6wdldAivm/pub?output=csv';
 
-        async function loadMenu() {
+       async function loadMenu() {
             try {
                 const response = await fetch(CSV_URL);
                 const data = await response.text();
@@ -232,18 +232,21 @@
 
                 rows.forEach(row => {
                     const cols = row.split(',');
+                    // cols[0]=Nombre, cols[1]=Desc, cols[2]=Precio, cols[3]=Link Imagen
                     if (cols.length >= 3 && cols[0].trim() !== "") {
-                        const name = cols[0];
-                        const desc = cols[1];
-                        const price = cols[2];
-                        const imgUrl = cols[3] ? cols[3].trim() : ""; // La cuarta columna
+                        
+                        // Si hay link de imagen en la cuarta columna, lo usamos
+                        let imgTag = '';
+                        if (cols[3] && cols[3].trim() !== "") {
+                            imgTag = `<img src="${cols[3].trim()}" style="width:100%; height:180px; object-fit:cover; border-radius:10px; margin-bottom:15px; border: 1px solid #333;">`;
+                        }
 
                         const card = `
                             <div class="menu-item">
-                                ${imgUrl ? `<img src="${imgUrl}" style="width:100%; height:150px; object-fit:cover; border-radius:10px; margin-bottom:15px; border: 1px solid #333;">` : ''}
-                                <h3>${name}</h3>
-                                <p>${desc}</p>
-                                <span class="price">$${price}</span>
+                                ${imgTag}
+                                <h3>${cols[0]}</h3>
+                                <p>${cols[1]}</p>
+                                <span class="price">$${cols[2]}</span>
                             </div>
                         `;
                         container.innerHTML += card;
@@ -251,11 +254,10 @@
                 });
             } catch (e) {
                 console.error("Error:", e);
-                document.getElementById('menu-container').innerHTML = "<p>Error al cargar el menú.</p>";
+                document.getElementById('menu-container').innerHTML = "<p>Error al conectar con el menú.</p>";
             }
         }
         loadMenu();
     </script>
-
 </body>
 </html>
