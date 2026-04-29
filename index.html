@@ -218,27 +218,27 @@
         </div>
     </div>
 
-    <script>
+   <script>
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm2_IgGg-pUfMrQyOADkutPOaBriS_vYk9JcsDF2zu3f9pa09Y6aMGeLnfaSouNk7ch2W6wdldAivm/pub?output=csv';
 
     async function loadMenu() {
         try {
-            const response = await fetch(CSV_URL);
+            // Añadimos un número aleatorio al final para evitar que el navegador guarde una copia vieja (caché)
+            const response = await fetch(CSV_URL + '&cache=no' + Math.random());
             const data = await response.text();
             
-            // Separamos por líneas
             const lines = data.split(/\r?\n/);
             const container = document.getElementById('menu-container');
             container.innerHTML = '';
 
-            // Empezamos en i=1 para saltar los encabezados
             for (let i = 1; i < lines.length; i++) {
-                if (!lines[i]) continue;
+                if (!lines[i].trim()) continue;
 
-                // Separar por comas (esto divide las 5 columnas)
-                const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                // Separador básico por comas
+                const cols = lines[i].split(',');
                 
                 if (cols.length >= 3) {
+                    // Limpiamos comillas y espacios de cada columna
                     const name = cols[0].replace(/"/g, "").trim();
                     const desc = cols[1].replace(/"/g, "").trim();
                     const price = cols[2].replace(/"/g, "").trim();
@@ -246,8 +246,8 @@
                     const imgUrl = cols[4] ? cols[4].replace(/"/g, "").trim() : "";
 
                     let imgTag = '';
-                    // Verificamos que sea un link directo (que empiece con http)
-                    if (imgUrl.toLowerCase().startsWith('http')) {
+                    // Verificamos que el link sea un link real
+                    if (imgUrl.toLowerCase().includes('http')) {
                         imgTag = `<img src="${imgUrl}" style="width:100%; height:180px; object-fit:cover; border-radius:10px; margin-bottom:15px; border: 1px solid #333;">`;
                     }
 
@@ -255,16 +255,16 @@
                         <div class="menu-item">
                             ${imgTag}
                             <span style="font-size: 0.7rem; color: #ff6600; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">${category}</span>
-                            <h3 style="margin: 5px 0;">${name}</h3>
-                            <p>${desc}</p>
-                            <span class="price">$${price}</span>
+                            <h3 style="margin: 5px 0; color: white;">${name}</h3>
+                            <p style="color: #ccc; font-size: 0.9rem;">${desc}</p>
+                            <span class="price" style="color: #ff6600; font-weight: 700; font-size: 1.2rem;">$${price}</span>
                         </div>
                     `;
                     container.innerHTML += card;
                 }
             }
         } catch (e) {
-            console.error("Error cargando el menú:", e);
+            console.error("Error:", e);
         }
     }
     loadMenu();
