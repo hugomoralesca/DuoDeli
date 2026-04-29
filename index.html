@@ -218,12 +218,12 @@
         </div>
     </div>
 
- <script>
+<script>
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm2_IgGg-pUfMrQyOADkutPOaBriS_vYk9JcsDF2zu3f9pa09Y6aMGeLnfaSouNk7ch2W6wdldAivm/pub?output=csv';
 
     async function loadMenu() {
         try {
-            const response = await fetch(CSV_URL + '&cache=no' + Math.random());
+            const response = await fetch(CSV_URL + '&cache=' + Math.random());
             const data = await response.text();
             
             const lines = data.split(/\r?\n/);
@@ -233,9 +233,10 @@
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
 
-                const cols = lines[i].split(',');
+                // Esta línea separa por comas pero respeta las que están dentro de comillas
+                const cols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
                 
-                if (cols.length >= 3) {
+                if (cols && cols.length >= 3) {
                     const name = cols[0].replace(/"/g, "").trim();
                     const desc = cols[1].replace(/"/g, "").trim();
                     const price = cols[2].replace(/"/g, "").trim();
@@ -244,24 +245,27 @@
 
                     let imgTag = '';
                     if (imgUrl.toLowerCase().includes('http')) {
-                        // Agregamos !important para forzar el ajuste y height fijo
-                        imgTag = `<img src="${imgUrl}" style="width:100% !important; height:200px !important; object-fit: cover !important; object-position: center !important; border-radius:10px; margin-bottom:15px; border: 1px solid #333; display: block;">`;
+                        // Forzamos un contenedor con altura fija para asegurar el recorte
+                        imgTag = `
+                        <div style="width: 100%; height: 220px; overflow: hidden; border-radius: 10px; margin-bottom: 15px; border: 1px solid #333;">
+                            <img src="${imgUrl}" style="width: 100% !important; height: 100% !important; object-fit: cover !important; display: block;">
+                        </div>`;
                     }
 
                     const card = `
-                        <div class="menu-item">
+                        <div class="menu-item" style="display: flex; flex-direction: column;">
                             ${imgTag}
                             <span style="font-size: 0.7rem; color: #ff6600; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">${category}</span>
                             <h3 style="margin: 5px 0; color: white;">${name}</h3>
-                            <p style="color: #ccc; font-size: 0.9rem;">${desc}</p>
-                            <span class="price" style="color: #ff6600; font-weight: 700; font-size: 1.2rem;">$${price}</span>
+                            <p style="color: #ccc; font-size: 0.9rem; flex-grow: 1;">${desc}</p>
+                            <span class="price" style="color: #ff6600; font-weight: 700; font-size: 1.2rem; margin-top: 10px;">$${price}</span>
                         </div>
                     `;
                     container.innerHTML += card;
                 }
             }
         } catch (e) {
-            console.error("Error:", e);
+            console.error("Error en MOCA Labs Menu:", e);
         }
     }
     loadMenu();
