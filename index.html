@@ -223,6 +223,7 @@
 
     async function loadMenu() {
         try {
+            // Anti-caché para que los cambios de precio sean instantáneos
             const response = await fetch(CSV_URL + '&cache=' + Math.random());
             const data = await response.text();
             
@@ -233,7 +234,7 @@
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
 
-                // Separador robusto
+                // Separador que respeta comas internas en descripciones
                 const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 
                 if (cols.length >= 3) {
@@ -241,40 +242,22 @@
                     const desc = cols[1].replace(/"/g, "").trim();
                     const price = cols[2].replace(/"/g, "").trim();
                     const category = cols[3] ? cols[3].replace(/"/g, "").trim() : "";
-                    const imgUrl = cols[4] ? cols[4].replace(/"/g, "").trim() : "";
-
-                    let imgSection = '';
-                    if (imgUrl.toLowerCase().includes('http')) {
-                        // USAMOS BACKGROUND-IMAGE: Es infalible para recortar y centrar
-                        imgSection = `
-                        <div style="
-                            width: 100%; 
-                            height: 200px; 
-                            background-image: url('${imgUrl}'); 
-                            background-size: cover; 
-                            background-position: center; 
-                            background-repeat: no-repeat;
-                            border-radius: 12px; 
-                            margin-bottom: 15px; 
-                            border: 1px solid #333;
-                            background-color: #1a1a1a;
-                        "></div>`;
-                    }
 
                     const card = `
-                        <div class="menu-item" style="display: flex; flex-direction: column; height: 100%;">
-                            ${imgSection}
-                            <span style="font-size: 0.7rem; color: #ff6600; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">${category}</span>
-                            <h3 style="margin: 5px 0; color: white; font-size: 1.3rem;">${name}</h3>
-                            <p style="color: #ccc; font-size: 0.9rem; flex-grow: 1; margin-bottom: 15px;">${desc}</p>
-                            <span class="price" style="color: #ff6600; font-weight: 700; font-size: 1.4rem;">$${price}</span>
+                        <div class="menu-item" style="display: flex; flex-direction: column; background: #1a1a1a; padding: 25px; border-radius: 15px; border-left: 5px solid #ff6600; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                            <span style="font-size: 0.75rem; color: #ff6600; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 8px;">${category}</span>
+                            <h3 style="margin: 0 0 10px 0; color: white; font-size: 1.4rem; font-weight: 600;">${name}</h3>
+                            <p style="color: #bbb; font-size: 0.95rem; line-height: 1.5; flex-grow: 1; margin-bottom: 20px;">${desc}</p>
+                            <div style="border-top: 1px solid #333; padding-top: 15px;">
+                                <span class="price" style="color: #ffffff; font-weight: 700; font-size: 1.5rem;">$${price}</span>
+                            </div>
                         </div>
                     `;
                     container.innerHTML += card;
                 }
             }
         } catch (e) {
-            console.error("Error en el sistema de menú:", e);
+            console.error("Error en la sincronización:", e);
         }
     }
     loadMenu();
